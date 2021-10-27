@@ -17,6 +17,8 @@ class AddBusinessCardActivity : AppCompatActivity() {
 
     private val binding by lazy { ActivityAddBusinessCardBinding.inflate(layoutInflater)}
 
+    private var hexcolor = ""
+
     private val mainViewModel:MainViewModel by viewModels {
         MainViewModelFactory((application as App).repository)
     }
@@ -35,34 +37,34 @@ class AddBusinessCardActivity : AppCompatActivity() {
 
             MaterialAlertDialogBuilder(context)
                 .setTitle(resources.getString(R.string.label_pick_the_color))
-                .setNeutralButton(resources.getString(R.string.label_cancel)) { dialog, which ->
+                .setNeutralButton(resources.getString(R.string.label_cancel)) { dialog, _ ->
                     dialog.dismiss()
                 }
-                .setPositiveButton(resources.getString(R.string.label_confirm)) { dialog, which ->
+                .setPositiveButton(resources.getString(R.string.label_confirm)) { dialog, _ ->
                     when((dialog as AlertDialog).listView.checkedItemPosition){
                         0 -> {
                             binding.tvColorBox.setBackgroundColor(Color.parseColor("#000000"))
-                            binding.tvColorBox.setText("#000000")
+                            hexcolor = "#000000"
                         }
                         1 -> {
                             binding.tvColorBox.setBackgroundColor(Color.parseColor("#FF0000"))
-                            binding.tvColorBox.setText("#FF0000")
+                            hexcolor ="#FF0000"
                         }
                         2 -> {
                             binding.tvColorBox.setBackgroundColor(Color.parseColor("#00FF00"))
-                            binding.tvColorBox.setText("#00FF00")
+                            hexcolor ="#00FF00"
                         }
                         3 -> {
                             binding.tvColorBox.setBackgroundColor(Color.parseColor("#0000FF"))
-                            binding.tvColorBox.setText("#0000FF")
+                            hexcolor ="#0000FF"
                         }
                         4 -> {
                             binding.tvColorBox.setBackgroundColor(Color.parseColor("#FF00FF"))
-                            binding.tvColorBox.setText("#FF00FF")
+                            hexcolor ="#FF00FF"
                         }
                     }
                 }
-                .setSingleChoiceItems(singleItems, checkedItem) { dialog, which ->
+                .setSingleChoiceItems(singleItems, checkedItem) { _, _ ->
                     // Respond to item chosen
                 }
                 .show()
@@ -79,11 +81,12 @@ class AddBusinessCardActivity : AppCompatActivity() {
                 phone = binding.tilPhone.editText?.text.toString(),
                 email = binding.tilEmail.editText?.text.toString(),
                 company = binding.tilCompany.editText?.text.toString(),
-                customBackground = binding.tvColorBox.text.toString()
+                customBackground = hexcolor
             )
             mainViewModel.insert(businessCard)
             Toast.makeText(this, R.string.label_show_success, Toast.LENGTH_LONG).show()
             finish()
         }
     }
+
 }
