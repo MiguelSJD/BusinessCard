@@ -13,4 +13,6 @@
     <string name="label_pick_the_color">Selecione a cor</string>
     <string name="label_confirm">Confirmar</string>
     <string name="label_show_success">Cartão cadastrado com sucesso.</string>
+    <string name="label_successful_screenshot">Captura de tela bem-sucedida</string>
+    <string name="label_share">Compartilhar</string>
 </resources>
