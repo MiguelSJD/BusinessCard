@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:id="@+id/all_content">
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/mcv_content"
@@ -18,12 +19,23 @@
         app:layout_constraintDimensionRatio="16:9"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_card_data"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="16dp">
+
+            <ImageView
+                android:id="@+id/iv_check_box"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_check"
+                app:layout_constraintEnd_toEndOf="@id/cl_card_data"
+                app:layout_constraintTop_toTopOf="@id/cl_card_data"
+                android:visibility="gone"/>
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tv_name"

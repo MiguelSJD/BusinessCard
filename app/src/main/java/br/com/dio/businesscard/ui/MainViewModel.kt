@@ -1,6 +1,7 @@
 package br.com.dio.businesscard.ui
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import br.com.dio.businesscard.data.BusinessCard
@@ -9,12 +10,27 @@ import java.lang.IllegalArgumentException
 
 class MainViewModel (private val businessCardRepository: BusinessCardRepository): ViewModel(){
 
+    var mutableLiveData: MutableLiveData<String> = MutableLiveData<String>()
+            private set
+
+    fun setText(s: String){
+        mutableLiveData.value = s
+    }
+
+    fun getText():MutableLiveData<String>{
+        return mutableLiveData
+    }
+
     fun insert(businessCard: BusinessCard){
         businessCardRepository.insert(businessCard)
     }
 
     fun getAll() : LiveData<List<BusinessCard>>{
         return businessCardRepository.getAll()
+    }
+
+    fun deleteCard(businessCard: BusinessCard){
+        businessCardRepository.deleteCard(businessCard)
     }
 
 }

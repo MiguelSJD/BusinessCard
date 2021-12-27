@@ -1,49 +1,132 @@
 package br.com.dio.businesscard.ui
 
+import android.app.Activity
 import android.graphics.Color
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
+import android.view.*
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.ListAdapter
+import br.com.dio.businesscard.R
 import br.com.dio.businesscard.data.BusinessCard
 import br.com.dio.businesscard.databinding.ItemBusinessCardBinding
+import br.com.dio.businesscard.util.Image
 
-class BusinessCardAdapter: ListAdapter<BusinessCard, BusinessCardAdapter.ViewHolder>(DiffCallBack()) {
+class BusinessCardAdapter(private val items: ArrayList<BusinessCard>, private val activity: Activity, private val viewModel:MainViewModel): RecyclerView.Adapter<BusinessCardAdapter.ViewHolder>() {
 
-    var listenerShare: (View) -> Unit = {}
 
+    var isEnabled = false
+    val selectedList:ArrayList<BusinessCard> = ArrayList()
+    
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = ItemBusinessCardBinding.inflate(inflater, parent, false)
         return ViewHolder(binding)
     }
 
+    override fun getItemCount(): Int = items.size
+
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        holder.bind(items[position])
+        holder.cardItem.setOnLongClickListener(object : View.OnLongClickListener {
+            override fun onLongClick(view: View?): Boolean {
+                if(!isEnabled){
+                    val callback: ActionMode.Callback = object : ActionMode.Callback {
+                        override fun onCreateActionMode(actionMode: ActionMode, menu: Menu): Boolean {
+                            val menuInflater = actionMode.menuInflater
+                            menuInflater.inflate(R.menu.select_items_menu, menu)
+                            return true
+                        }
+
+                        override fun onPrepareActionMode(actionMode: ActionMode, menu: Menu): Boolean {
+                            isEnabled = true
+                            clickItem(holder)
+                            viewModel.getText().observe(activity as LifecycleOwner,
+                                { s -> actionMode.title = String.format("$s Selected") })
+                            return true
+                        }
+
+                        override fun onActionItemClicked(actionMode: ActionMode, menuItem: MenuItem): Boolean {
+                            when(menuItem.itemId){
+                                R.id.menu_delete -> {
+                                    selectedList.forEach { s ->
+                                        viewModel.deleteCard(s)
+                                        notifyDataSetChanged()
+                                    }
+                                    actionMode.finish()
+                                }
+                                R.id.menu_share -> {
+                                    holder.ivCheckBox.visibility = View.GONE
+                                    view?.let { share(it) }
+                                    actionMode.finish()
+                                }
+                            }
+                            return true
+                        }
+
+                        override fun onDestroyActionMode(actionMode: ActionMode) {
+                            isEnabled = false
+                            selectedList.clear()
+                            notifyDataSetChanged()
+                        }
+                    }
+                    ((view!!.context as AppCompatActivity).startActionMode(callback))
+                }else{
+                    clickItem(holder)
+                }
+                return true
+            }
+        })
+        holder.cardItem.setOnClickListener {
+            if (isEnabled) clickItem(holder)
+        }
+        if(isEnabled){
+            holder.ivCheckBox.visibility = View.VISIBLE
+            holder.wholeItem.setBackgroundColor(Color.LTGRAY)
+        }else{
+            holder.ivCheckBox.visibility = View.GONE
+            holder.wholeItem.setBackgroundColor(Color.TRANSPARENT)
+        }
+    }
+
+    fun share(view: View){
+        Image.share(activity, view)
+    }
+
+    private fun clickItem(holder: ViewHolder) {
+        val s = items[holder.adapterPosition]
+        if (holder.ivCheckBox.visibility == View.GONE) {
+            holder.ivCheckBox.visibility = View.VISIBLE
+            holder.wholeItem.setBackgroundColor(Color.LTGRAY)
+            selectedList.add(s)
+        } else {
+            holder.ivCheckBox.visibility = View.GONE
+            holder.wholeItem.setBackgroundColor(Color.TRANSPARENT)
+            selectedList.remove(s)
+        }
+        viewModel.setText(selectedList.size.toString())
     }
 
     inner class ViewHolder(
         private val binding: ItemBusinessCardBinding
     ): RecyclerView.ViewHolder(binding.root){
+        val ivCheckBox = binding.ivCheckBox
+        val cardItem = binding.mcvContent
+        var wholeItem = binding.allContent
         fun bind(item:BusinessCard){
             binding.tvName.text = item.name
             binding.tvPhone.text = item.phone
             binding.tvEmail.text = item.email
             binding.tvCompanyName.text = item.company
             binding.mcvContent.setCardBackgroundColor(Color.parseColor(item.customBackground))
-            binding.mcvContent.setOnClickListener {
-                listenerShare(it)
-            }
         }
     }
 
-
-}
-
-class DiffCallBack:DiffUtil.ItemCallback<BusinessCard>(){
-    override fun areItemsTheSame(oldItem: BusinessCard, newItem: BusinessCard) = oldItem == newItem
-    override fun areContentsTheSame(oldItem: BusinessCard, newItem: BusinessCard) = oldItem.id == newItem.id
+    fun addCards(repositories:List<BusinessCard>){
+        this.items.apply {
+            clear()
+            addAll(repositories)
+        }
+    }
 
 }
