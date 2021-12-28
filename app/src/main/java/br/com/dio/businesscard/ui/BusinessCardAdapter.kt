@@ -43,7 +43,7 @@ class BusinessCardAdapter(private val items: ArrayList<BusinessCard>, private va
                             if (view != null) {
                                 clickItem(holder, view)
                             }
-                            viewModel.getText().observe(activity as LifecycleOwner,
+                            viewModel.mutableLiveData.observe(activity as LifecycleOwner,
                                 { s -> actionMode.title = String.format("$s Selected") })
                             return true
                         }
@@ -108,7 +108,7 @@ class BusinessCardAdapter(private val items: ArrayList<BusinessCard>, private va
             views.remove(view)
             selectedList.remove(s)
         }
-        viewModel.setText(selectedList.size.toString())
+        viewModel.mutableLiveData.value = selectedList.size.toString()
     }
 
     inner class ViewHolder(
@@ -116,7 +116,7 @@ class BusinessCardAdapter(private val items: ArrayList<BusinessCard>, private va
     ): RecyclerView.ViewHolder(binding.root){
         val ivCheckBox = binding.ivCheckBox
         val cardItem = binding.mcvContent
-        var wholeItem = binding.allContent
+        val wholeItem = binding.allContent
         fun bind(item:BusinessCard){
             binding.tvName.text = item.name
             binding.tvPhone.text = item.phone

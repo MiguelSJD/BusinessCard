@@ -56,7 +56,7 @@ class Image {
                         put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg")
                         put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
                     }
-                    var imageUri: Uri? =
+                    val imageUri: Uri? =
                         resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
 
                     fos = imageUri?.let {
@@ -79,7 +79,7 @@ class Image {
         }
 
         private fun shareIntent(context: Context, imageUri: Uri) {
-            var shareIntent: Intent = Intent().apply {
+            val shareIntent: Intent = Intent().apply {
                 action = Intent.ACTION_SEND
                 putExtra(Intent.EXTRA_STREAM, imageUri)
                 type = "image/jpeg"
