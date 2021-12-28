@@ -14,7 +14,7 @@ import br.com.dio.businesscard.util.Image
 
 class BusinessCardAdapter(private val items: ArrayList<BusinessCard>, private val activity: Activity, private val viewModel:MainViewModel): RecyclerView.Adapter<BusinessCardAdapter.ViewHolder>() {
 
-
+    val views:ArrayList<View> = arrayListOf()
     var isEnabled = false
     val selectedList:ArrayList<BusinessCard> = ArrayList()
     
@@ -40,7 +40,9 @@ class BusinessCardAdapter(private val items: ArrayList<BusinessCard>, private va
 
                         override fun onPrepareActionMode(actionMode: ActionMode, menu: Menu): Boolean {
                             isEnabled = true
-                            clickItem(holder)
+                            if (view != null) {
+                                clickItem(holder, view)
+                            }
                             viewModel.getText().observe(activity as LifecycleOwner,
                                 { s -> actionMode.title = String.format("$s Selected") })
                             return true
@@ -57,7 +59,7 @@ class BusinessCardAdapter(private val items: ArrayList<BusinessCard>, private va
                                 }
                                 R.id.menu_share -> {
                                     holder.ivCheckBox.visibility = View.GONE
-                                    view?.let { share(it) }
+                                    views.forEach { share(it) }
                                     actionMode.finish()
                                 }
                             }
@@ -72,13 +74,13 @@ class BusinessCardAdapter(private val items: ArrayList<BusinessCard>, private va
                     }
                     ((view!!.context as AppCompatActivity).startActionMode(callback))
                 }else{
-                    clickItem(holder)
+                    view?.let { clickItem(holder, it) }
                 }
                 return true
             }
         })
         holder.cardItem.setOnClickListener {
-            if (isEnabled) clickItem(holder)
+            if (isEnabled) clickItem(holder, it)
         }
         if(isEnabled){
             holder.ivCheckBox.visibility = View.VISIBLE
@@ -93,15 +95,17 @@ class BusinessCardAdapter(private val items: ArrayList<BusinessCard>, private va
         Image.share(activity, view)
     }
 
-    private fun clickItem(holder: ViewHolder) {
+    private fun clickItem(holder: ViewHolder, view: View) {
         val s = items[holder.adapterPosition]
         if (holder.ivCheckBox.visibility == View.GONE) {
             holder.ivCheckBox.visibility = View.VISIBLE
             holder.wholeItem.setBackgroundColor(Color.LTGRAY)
+            views.add(view)
             selectedList.add(s)
         } else {
             holder.ivCheckBox.visibility = View.GONE
             holder.wholeItem.setBackgroundColor(Color.TRANSPARENT)
+            views.remove(view)
             selectedList.remove(s)
         }
         viewModel.setText(selectedList.size.toString())
